@@ -1,0 +1,105 @@
+id: new-ticket
+type: PageHeaderMenu
+
+requests: 
+  - id: save_data
+    type: GoogleSheetAppendOne
+    connectionId: google_sheet
+    properties: 
+      row: 
+        ticket_title: 
+          _state: ticket_title
+        ticket_type:
+          _state: ticket_type
+        ticket_description:
+          _state: ticket_description
+        confirm_restart:
+          _state: confirm_restart
+        created_date:
+          _date: now
+properties:
+  title: New Ticket
+layout:
+  contentJustify: center
+blocks:
+  - id: content_card
+    type: Card
+    layout:
+      size: 800
+      contentGutter: 16
+    blocks:
+      - id: page-heading
+        type: Title
+        properties: 
+          content: Log a ticket
+          level: 3
+      - id: ticket_title
+        type: TextInput
+        required: true
+        properties: 
+          title: Title  
+      - id: ticket_type
+        type: ButtonSelector
+        required: true
+        properties: 
+          title: Ticket type
+          options:
+            - Feature request
+            - Bug report
+            - Question
+      - id: confirm_restart
+        type: ButtonSelector
+        visible:
+          _eq: 
+            - _state: ticket_type
+            - Bug report
+        validate: 
+          - status: warning
+            message: If you did not restart your device, we will ask you to restart it.
+            pass:
+              _eq: 
+                - _state: confirm_restart
+                - Yes
+        properties: 
+          title: Did you restart your device?
+          label: 
+            colon: false
+          options:
+            - Yes
+            - No
+            
+      - id: ticket_description
+        type: TextArea
+        properties: 
+          title: Description
+      - id: reset-button
+        type: Button
+        layout:
+          span: 12
+        properties: 
+          title: Reset
+          block: true
+          type: default
+          icon: ClearOutlined
+        events:
+          onClick: 
+            - id: reset
+              type: Reset
+      - id: submit-button
+        type: Button
+        layout:
+          span: 12
+        properties:
+          title: Submit
+          block: true
+          type: primary
+          icon: SaveOutlined
+        events:
+          onClick:
+            - id: validate  
+              type: Validate
+            - id: save_data
+              type: Request
+              params: save_data
+            - id: reset
+              type: Reset
